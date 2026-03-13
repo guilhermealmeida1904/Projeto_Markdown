@@ -1,0 +1,51 @@
+
+import sys
+import re
+from typing import TextIO
+
+from bs4 import BeautifulSoup
+from bs4.formatter import HTMLFormatter
+
+
+__all__ = [
+    'prettify_html',
+    'rewind_one_line',
+    'from_file_or_stdin',
+    'to_file_or_stdout',
+    'matches',
+    'count_consec'
+]
+
+
+def prettify_html(html_code: str | TextIO, indent = 2) -> str:
+    soup = BeautifulSoup(html_code, features = 'html.parser')
+    return soup.prettify(formatter = HTMLFormatter(indent = indent))
+#:
+
+def rewind_one_line(in_: TextIO, line: str):
+    n_chars = len(line.encode()) + 1  # '+ 1'  accounts for the removed '\n'
+    in_.seek(in_.tell() - n_chars, 0)
+#:
+
+def from_file_or_stdin(file_path: str | None) -> TextIO:
+    return open(file_path, 'rt') if file_path else sys.stdin
+
+#:
+
+def to_file_or_stdout(file_path: str | None) -> TextIO:
+    return open(file_path, 'wt') if file_path else sys.stdout
+
+#:
+
+def matches(pattern: re.Pattern, line: str) -> bool:
+    return bool(pattern.fullmatch(line))
+#:
+
+def count_consec(txt: str, char: str, start_pos: int = 0):
+    count = 0
+    for ch in txt[start_pos:]:      # enumerate doesn't work for this
+        if ch != char:              # because a) count may not be defined
+            break                   # if txt is empty and b) count is not increm.
+        count += 1                  # if txt is made only of char's
+    return count
+#:
